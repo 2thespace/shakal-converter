@@ -62,7 +62,7 @@ void ImageConverter::averageFiltration(std::size_t skipPixel, std::size_t kernel
         }
 
         return new_matrix;
-    }
+    };
 }
 
 void ImageConverter::bilinearFiltration(std::size_t skipPixel, std::size_t kernelSize) {}
