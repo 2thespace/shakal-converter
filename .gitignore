@@ -35,3 +35,4 @@ build
 out
 .cache
 .vscode
+.token
