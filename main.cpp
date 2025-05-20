@@ -51,11 +51,18 @@ void TestSummarize() {
         assert(res == 1.0);
     }
 }
+void SubmatrixTest() {
+    converter::Matrix tmp({{0, 1, 2, 3}, {0, 1, 2, 3}, {0, 1, 2, 3}, {0, 1, 2, 3}});
+    auto res = tmp.subMatrix(1, 1, 2, 2);
+    assert(res.collums() == 1);
+    assert(res.rows() == 1);
+}
 
 void Tests() {
     MatrixTest();
     TestSummarize();
     ImageReadTest();
+    SubmatrixTest();
 }
 
 int main() {

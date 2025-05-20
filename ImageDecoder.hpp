@@ -75,7 +75,6 @@ inline void Matrix<T>::insert_collumn(std::size_t position, Collumn const& new_c
 
 template <typename T>
 inline auto& Matrix<T>::getRow(std::size_t position) const {
-    // TODO: insert return statement here
     if (position > m) {
         throw;
     }
@@ -85,7 +84,14 @@ inline auto& Matrix<T>::getRow(std::size_t position) const {
 template <typename T>
 inline Matrix<> Matrix<T>::subMatrix(std::size_t rowPositionFirst, std::size_t collumnPositionFirst,
                                      std::size_t rowPositionSecond, std::size_t collumnPositionSecond) {
-    return Matrix();
+    Matrix<> subMatrix;
+    for (auto i = rowPositionFirst; i != rowPositionSecond; ++i) {
+        Row subRow;
+        subRow.insert(subRow.end(), data.at(i).begin() + collumnPositionFirst,
+                      data.at(i).begin() + collumnPositionSecond);
+        subMatrix.insert_row(subMatrix.rows(), subRow);
+    }
+    return subMatrix;
 }
 
 template <typename T>
