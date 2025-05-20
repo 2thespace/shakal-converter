@@ -23,12 +23,13 @@ public:
     void insert_collumn(std::size_t position, Collumn const& new_coll);
     auto& getRow(std::size_t position) const;
     // TODO make span realisation
-    Matrix<> subMatrix(std::size_t rowPositionFirst, std::size_t collumnPositionFirst, std::size_t rowPositionSecond, std::size_t collumnPositionSecond);
+    Matrix<> subMatrix(std::size_t rowPositionFirst, std::size_t collumnPositionFirst, std::size_t rowPositionSecond,
+                       std::size_t collumnPositionSecond);
 
-    Matrix<> operator *(Matrix<T> const& rhs);
-    Matrix<> operator *= (Matrix<T> const& rhs);
+    Matrix<> operator*(Matrix<T> const& rhs);
+    Matrix<> operator*=(Matrix<T> const& rhs);
 
-    template<bool norm = false>
+    template <bool isNorm = false>
     double sumarize();
 
     auto& mutable_data() const;
@@ -82,30 +83,26 @@ inline auto& Matrix<T>::getRow(std::size_t position) const {
 }
 
 template <typename T>
-inline Matrix<> Matrix<T>::subMatrix(std::size_t rowPositionFirst, std::size_t collumnPositionFirst, std::size_t rowPositionSecond, std::size_t collumnPositionSecond)
-{
-
+inline Matrix<> Matrix<T>::subMatrix(std::size_t rowPositionFirst, std::size_t collumnPositionFirst,
+                                     std::size_t rowPositionSecond, std::size_t collumnPositionSecond) {
     return Matrix();
 }
 
 template <typename T>
-inline Matrix<> Matrix<T>::operator*(Matrix<T> const &rhs)
-{
-    if(this->collums() != rhs.rows()) {
+inline Matrix<> Matrix<T>::operator*(Matrix<T> const& rhs) {
+    if (this->collums() != rhs.rows()) {
         throw;
     }
     return Matrix<>();
 }
 
 template <typename T>
-inline Matrix<> Matrix<T>::operator*=(Matrix<T> const &rhs)
-{
-   return this->operator*(rhs);
+inline Matrix<> Matrix<T>::operator*=(Matrix<T> const& rhs) {
+    return this->operator*(rhs);
 }
 
 template <typename T>
-inline auto &Matrix<T>::mutable_data() const
-{
+inline auto& Matrix<T>::mutable_data() const {
     return data;
 }
 
@@ -142,19 +139,18 @@ private:
 };
 
 template <typename T>
-template <bool norm>
-inline double Matrix<T>::sumarize()
-{
-    double kNorm = norm ? static_cast<double>(collums()*rows()) : 1.0f;
+template <bool isNorm>
+inline double Matrix<T>::sumarize() {
+    double kNorm = isNorm ? static_cast<double>(collums() * rows()) : 1.0f;
     double sum{};
-    for(auto i = 0; i != collums(); ++i) {
-        for(auto j =0; j != rows(); ++j) {
-            sum += data[i][j]/norm;
+    for (auto i = 0; i != collums(); ++i) {
+        for (auto j = 0; j != rows(); ++j) {
+            sum += data[j][i] / kNorm;
         }
     }
     return sum;
 }
 
-} // namespace converter
+}  // namespace converter
 
 #endif  // IMAGEDECODER_HPP_

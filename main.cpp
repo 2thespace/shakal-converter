@@ -26,33 +26,30 @@ void ImageReadTest() {
 }
 
 void ImageShakalTest() {
-     std::cout << "All tests passed" << std::endl;
     converter::ImageConverter tmp("../tests/input.png");
     tmp.ShakalImage(4);
     tmp.SaveImage("../tests/shakal.png");
-     std::cout << "All tests passed" << std::endl;
 }
 
 void TestSummarize() {
-    
     // zeros
     {
         converter::Matrix tmp({{0, 0, 0, 0}});
-        assert(tmp.sumarize() == 0.0);
+        double res = tmp.sumarize();
+        assert(res == 0.0);
     }
-    // ones 
+    // ones
     {
         converter::Matrix tmp({{1, 1, 1, 1}});
-        assert(tmp.sumarize() == 4.0);
+        double res = tmp.sumarize();
+        assert(res == 4.0);
     }
-    std::cout << "End ones" << std::endl;
-    // ones 
+    // ones
     {
         converter::Matrix tmp({{1, 1, 1, 1}});
-        assert(tmp.sumarize<true>() == 1.0);
+        double res = tmp.sumarize<true>();
+        assert(res == 1.0);
     }
-
-    std::cout << "End sumarize" << std::endl;
 }
 
 void Tests() {
