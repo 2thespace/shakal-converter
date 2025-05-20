@@ -19,6 +19,8 @@ public:
     std::size_t collums() const;
     std::size_t rows() const;
 
+    void default_init(std::size_t rowsCnt, std::size_t collumnsCnt);
+
     void insert_row(std::size_t position, Row const& new_row);
     void insert_collumn(std::size_t position, Collumn const& new_coll);
     auto& getRow(std::size_t position) const;
@@ -33,6 +35,7 @@ public:
     double sumarize();
 
     auto& mutable_data() const;
+
     Matrix() = default;
     Matrix(Type const& new_data);
 
@@ -49,6 +52,17 @@ inline std::size_t converter::Matrix<T>::collums() const {
 template <typename T>
 inline std::size_t converter::Matrix<T>::rows() const {
     return m;
+}
+
+template <typename T>
+inline void Matrix<T>::default_init(std::size_t rowsCnt, std::size_t collumnsCnt)
+{
+    data.resize(collumnsCnt);
+    for(auto it = data.begin(); it != data.end(); ++it) {
+        it->resize(rowsCnt);
+    }
+    n = collumnsCnt;
+    m = rowsCnt;
 }
 
 template <typename T>
@@ -96,10 +110,24 @@ inline Matrix<> Matrix<T>::subMatrix(std::size_t rowPositionFirst, std::size_t c
 
 template <typename T>
 inline Matrix<> Matrix<T>::operator*(Matrix<T> const& rhs) {
-    if (this->collums() != rhs.rows()) {
+    if (this->rows() != rhs.collums()) {
         throw;
     }
-    return Matrix<>();
+    Matrix<T> result;
+    result.default_init(rows(), rhs.collums());
+    auto resultData = result.mutable_data();
+    auto rhsData = rhs.mutable_data();
+    
+    for(auto i=0; i != collums(); ++i) {
+        for(auto j=0; j != rows(); ++j) {
+           // element [i][j] in result need to be <rows_lhs, collumns_rhs>
+           for(auto k = 0; k != collums(); ++k) {
+                resultData[i][j] += data[i][k]*rhsData[k][i];
+           }
+        }
+    }
+
+    return result;
 }
 
 template <typename T>

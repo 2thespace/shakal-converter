@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 #include <iostream>
@@ -31,6 +32,15 @@ void ImageShakalTest() {
     tmp.SaveImage("../tests/shakal.png");
 }
 
+void MultiplyTest() {
+    converter::Matrix first({{1,2},{3,4},{5,6}});
+    converter::Matrix second({{7,8,9},{10,11,12}});
+    converter::Matrix expected({{27,30,33},{61,68,75},{95,106,117}});
+    auto third = first*second;
+    // TO DO make == operator and specialization for floating types
+    //assert(std::equal(expected.mutable_data().begin(), expected.mutable_data().end(), third.mutable_data().begin()));
+}
+
 void TestSummarize() {
     // zeros
     {
@@ -61,6 +71,7 @@ void SubmatrixTest() {
 void Tests() {
     MatrixTest();
     TestSummarize();
+    MultiplyTest();
     ImageReadTest();
     SubmatrixTest();
 }
