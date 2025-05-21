@@ -6,6 +6,8 @@
 
 #include "ImageDecoder.hpp"
 
+std::filesystem::path inputImageForTest =  "C:/dev/__cpp/shakal-converter/tests/input.png"; 
+
 void MatrixTest() {
     converter::Matrix tmp({{0, 0, 0, 0}});
     assert(tmp.collums() == 4);
@@ -22,12 +24,12 @@ void MatrixTest() {
 }
 
 void ImageReadTest() {
-    converter::ImageConverter tmp("../tests/input.png");
+    converter::ImageConverter tmp(inputImageForTest);
     tmp.SaveImage("../tests/output.png");
 }
 
 void ImageShakalTest() {
-    converter::ImageConverter tmp("../tests/input.png");
+    converter::ImageConverter tmp(inputImageForTest);
     tmp.ShakalImage(4);
     tmp.SaveImage("../tests/shakal.png");
 }
@@ -72,11 +74,24 @@ void Tests() {
     MatrixTest();
     TestSummarize();
     MultiplyTest();
+
+
+
     ImageReadTest();
     SubmatrixTest();
+   // ImageShakalTest();
 }
 
 int main() {
+    if (!std::filesystem::exists(inputImageForTest )) {
+        std::cerr << "File does not exist!\n";
+        return 1;
+    }
+    
+    if (!std::filesystem::is_regular_file(inputImageForTest )) {
+        std::cerr << "Path is not a regular file!\n";
+        return 1;
+    }
     Tests();
     std::cout << "All tests passed" << std::endl;
     return 0;

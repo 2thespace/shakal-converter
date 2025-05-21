@@ -5,9 +5,9 @@
 #include <cstdint>
 #include <string_view>
 #include <vector>
+#include <filesystem>
 
 namespace converter {
-
 template <typename T = std::uint8_t>
 class Matrix {
 public:
@@ -26,7 +26,7 @@ public:
     auto& getRow(std::size_t position) const;
     // TODO make span realisation
     Matrix<> subMatrix(std::size_t rowPositionFirst, std::size_t collumnPositionFirst, std::size_t rowPositionSecond,
-                       std::size_t collumnPositionSecond);
+                       std::size_t collumnPositionSecond) const;
 
     Matrix<> operator*(Matrix<T> const& rhs);
     Matrix<> operator*=(Matrix<T> const& rhs);
@@ -43,6 +43,23 @@ private:
     Type data;
     std::size_t n = 0, m = 0;  // collums, rows
 };
+
+template<typename T>
+Matrix<T> averagePixelResizer(Matrix<T> const &inputMatrix, Matrix<T> const& kernelMatrix) {
+    typename converter::Matrix<T> resultData;
+    auto kX =  kernelMatrix.rows();
+    auto kY =  kernelMatrix.collums();
+    for(auto i = kernelMatrix.rows(); i != (inputMatrix.rows() - kX); i = i + kX) {
+       typename converter::Matrix<T>::Row pixelLine;
+        for(auto j = kernelMatrix.collums(); j != (inputMatrix.collums() -  kY); j = j + kY) {
+            Matrix<T> kernelResult = inputMatrix.subMatrix(i,j,i+kX, j+kY)*kernelMatrix;
+            T pixel = static_cast<T>(kernelResult. template sumarize<true>());
+            pixelLine.emplace_back(pixel);
+        }
+        resultData.insert_row(resultData.rows(), pixelLine);
+    }
+    return resultData;
+}
 
 template <typename T>
 inline std::size_t converter::Matrix<T>::collums() const {
@@ -97,7 +114,7 @@ inline auto& Matrix<T>::getRow(std::size_t position) const {
 
 template <typename T>
 inline Matrix<> Matrix<T>::subMatrix(std::size_t rowPositionFirst, std::size_t collumnPositionFirst,
-                                     std::size_t rowPositionSecond, std::size_t collumnPositionSecond) {
+                                     std::size_t rowPositionSecond, std::size_t collumnPositionSecond) const {
     Matrix<> subMatrix;
     for (auto i = rowPositionFirst; i != rowPositionSecond; ++i) {
         Row subRow;
@@ -155,21 +172,29 @@ enum class PaddingType {
     SIMPLE = 0x0,
 };
 
+
+
 class ImageConverter {
 public:
-    ImageConverter(std::string_view path_to_image);
+    ImageConverter(std::filesystem::path const& path_to_image);
 
     void AddPadding(std::size_t size, PaddingType type = PaddingType::SIMPLE);
     void SaveImage(std::string_view path_to_image);
+
+    template<typename ShakalFunction>
+    void ShakalImage(std::size_t shakal_depth, ShakalFunction  converter);
+
     void ShakalImage(std::size_t shakal_depth);
     void resizeImage(std::size_t kDivided);
     void upsckaleImage(std::size_t kUpscale);
 
+    void averageFiltration(std::size_t kernelSize = 3);
+    void bilinearFiltration(std::size_t kernelSize = 3);
+
 private:
     Channel<3> rgbImage;
 
-    void averageFiltration(std::size_t skipPixel = 0, std::size_t kernelSize = 3);
-    void bilinearFiltration(std::size_t skipPixel = 0, std::size_t kernelSize = 3);
+   
 };
 
 template <typename T>
@@ -185,6 +210,15 @@ inline double Matrix<T>::sumarize() {
     return sum;
 }
 
-}  // namespace converter
+template <typename ShakalFunction>
+inline void ImageConverter::ShakalImage(std::size_t shakal_depth, ShakalFunction converter)
+{
+
+    // AddPadding(padding);
+    converter(shakal_depth);
+
+}
+
+} // namespace converter
 
 #endif  // IMAGEDECODER_HPP_
