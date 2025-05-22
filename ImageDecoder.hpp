@@ -3,9 +3,9 @@
 
 #include <array>
 #include <cstdint>
+#include <filesystem>
 #include <string_view>
 #include <vector>
-#include <filesystem>
 
 namespace converter {
 template <typename T = std::uint8_t>
@@ -44,16 +44,20 @@ private:
     std::size_t n = 0, m = 0;  // collums, rows
 };
 
-template<typename T>
-Matrix<T> averagePixelResizer(Matrix<T> const &inputMatrix, Matrix<T> const& kernelMatrix) {
+template <typename T>
+Matrix<T> averagePixelResizer(Matrix<T> const& inputMatrix, Matrix<T> const& kernelMatrix) {
     typename converter::Matrix<T> resultData;
-    auto kX =  kernelMatrix.rows();
-    auto kY =  kernelMatrix.collums();
-    for(auto i = kernelMatrix.rows(); i != (inputMatrix.rows() - kX); i = i + kX) {
-       typename converter::Matrix<T>::Row pixelLine;
-        for(auto j = kernelMatrix.collums(); j != (inputMatrix.collums() -  kY); j = j + kY) {
-            Matrix<T> kernelResult = inputMatrix.subMatrix(i,j,i+kX, j+kY)*kernelMatrix;
-            T pixel = static_cast<T>(kernelResult. template sumarize<true>());
+    auto kX = kernelMatrix.rows();
+    auto kY = kernelMatrix.collums();
+
+    auto inputRow = inputMatrix.rows();
+    auto inputCol = inputMatrix.collums();
+    for (auto i = kX; i <= (inputRow - kX); i = i + kX) {
+        typename converter::Matrix<T>::Row pixelLine;
+        for (auto j = kY; j <= (inputCol - kY); j = j + kY) {
+            auto inputWindow = inputMatrix.subMatrix(i, j, i + kX, j + kY);
+            inputWindow *= kernelMatrix;
+            T pixel = static_cast<T>(inputWindow.template sumarize<true>());
             pixelLine.emplace_back(pixel);
         }
         resultData.insert_row(resultData.rows(), pixelLine);
@@ -72,10 +76,9 @@ inline std::size_t converter::Matrix<T>::rows() const {
 }
 
 template <typename T>
-inline void Matrix<T>::default_init(std::size_t rowsCnt, std::size_t collumnsCnt)
-{
+inline void Matrix<T>::default_init(std::size_t rowsCnt, std::size_t collumnsCnt) {
     data.resize(collumnsCnt);
-    for(auto it = data.begin(); it != data.end(); ++it) {
+    for (auto it = data.begin(); it != data.end(); ++it) {
         it->resize(rowsCnt);
     }
     n = collumnsCnt;
@@ -133,14 +136,14 @@ inline Matrix<> Matrix<T>::operator*(Matrix<T> const& rhs) {
     Matrix<T> result;
     result.default_init(rows(), rhs.collums());
     auto resultData = result.mutable_data();
-    auto rhsData = rhs.mutable_data();
-    
-    for(auto i=0; i != collums(); ++i) {
-        for(auto j=0; j != rows(); ++j) {
-           // element [i][j] in result need to be <rows_lhs, collumns_rhs>
-           for(auto k = 0; k != collums(); ++k) {
-                resultData[i][j] += data[i][k]*rhsData[k][i];
-           }
+    auto rhsData    = rhs.mutable_data();
+
+    for (auto i = 0; i != collums(); ++i) {
+        for (auto j = 0; j != rows(); ++j) {
+            // element [i][j] in result need to be <rows_lhs, collumns_rhs>
+            for (auto k = 0; k != collums(); ++k) {
+                resultData[i][j] += data[i][k] * rhsData[k][i];
+            }
         }
     }
 
@@ -172,8 +175,6 @@ enum class PaddingType {
     SIMPLE = 0x0,
 };
 
-
-
 class ImageConverter {
 public:
     ImageConverter(std::filesystem::path const& path_to_image);
@@ -181,8 +182,8 @@ public:
     void AddPadding(std::size_t size, PaddingType type = PaddingType::SIMPLE);
     void SaveImage(std::string_view path_to_image);
 
-    template<typename ShakalFunction>
-    void ShakalImage(std::size_t shakal_depth, ShakalFunction  converter);
+    template <typename ShakalFunction>
+    void ShakalImage(std::size_t shakal_depth, ShakalFunction converter);
 
     void ShakalImage(std::size_t shakal_depth);
     void resizeImage(std::size_t kDivided);
@@ -193,8 +194,6 @@ public:
 
 private:
     Channel<3> rgbImage;
-
-   
 };
 
 template <typename T>
@@ -211,14 +210,11 @@ inline double Matrix<T>::sumarize() {
 }
 
 template <typename ShakalFunction>
-inline void ImageConverter::ShakalImage(std::size_t shakal_depth, ShakalFunction converter)
-{
-
+inline void ImageConverter::ShakalImage(std::size_t shakal_depth, ShakalFunction converter) {
     // AddPadding(padding);
     converter(shakal_depth);
-
 }
 
-} // namespace converter
+}  // namespace converter
 
 #endif  // IMAGEDECODER_HPP_

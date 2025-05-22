@@ -1,6 +1,5 @@
 #include "ImageDecoder.hpp"
 
-
 #include <string>
 
 #define cimg_display 0
@@ -8,7 +7,7 @@
 
 namespace converter {
 ImageConverter::ImageConverter(std::filesystem::path const& path_to_image) {
-    if(!std::filesystem::exists(path_to_image)) {
+    if (!std::filesystem::exists(path_to_image)) {
         throw;
     }
     cimg_library::CImg<std::uint8_t> reader(path_to_image.string().c_str());
@@ -32,7 +31,6 @@ ImageConverter::ImageConverter(std::filesystem::path const& path_to_image) {
 
 void ImageConverter::AddPadding(std::size_t size, PaddingType type) {
     // TO DO: swap algorithm with using PAddingType
-    
 }
 
 void ImageConverter::SaveImage(std::string_view path_to_image) {
@@ -51,36 +49,26 @@ void ImageConverter::SaveImage(std::string_view path_to_image) {
     tmp.save_png(std::string{path_to_image}.c_str());
 }
 
-void ImageConverter::resizeImage(std::size_t kDivided) {
-    
-}
+void ImageConverter::resizeImage(std::size_t kDivided) {}
 
 void ImageConverter::upsckaleImage(std::size_t kUpscale) {}
 
-void ImageConverter::averageFiltration(std::size_t kernelSize)
-{
+void ImageConverter::averageFiltration(std::size_t kernelSize) {
     Matrix<> averageKernel;
-    for(auto i =0; i != kernelSize; ++i) {
-        Matrix<>::Row singleLine(1, kernelSize);
+    for (auto i = 0; i != kernelSize; ++i) {
+        Matrix<>::Row singleLine(kernelSize, 1);
         averageKernel.insert_row(averageKernel.rows(), singleLine);
     }
-    for(auto j =0; j != rgbImage.size(); ++j) {
+    for (auto j = 0; j != rgbImage.size(); ++j) {
         auto result = averagePixelResizer(rgbImage[j], averageKernel);
         rgbImage[j] = result;
     }
-
-    
 }
 
-void ImageConverter::bilinearFiltration(std::size_t kernelSize)
-{
-}
-
+void ImageConverter::bilinearFiltration(std::size_t kernelSize) {}
 
 void ImageConverter::ShakalImage(std::size_t shakal_depth) {
-    ShakalImage(shakal_depth, [this](std::size_t shakal_depth){
-        averageFiltration(shakal_depth);
-    });
+    ShakalImage(shakal_depth, [this](std::size_t shakal_depth) { averageFiltration(shakal_depth); });
 }
 
 }  // namespace converter

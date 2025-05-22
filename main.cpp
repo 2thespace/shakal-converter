@@ -6,7 +6,7 @@
 
 #include "ImageDecoder.hpp"
 
-std::filesystem::path inputImageForTest =  "C:/dev/__cpp/shakal-converter/tests/input.png"; 
+std::filesystem::path inputImageForTest = "../tests/input.png";
 
 void MatrixTest() {
     converter::Matrix tmp({{0, 0, 0, 0}});
@@ -35,12 +35,12 @@ void ImageShakalTest() {
 }
 
 void MultiplyTest() {
-    converter::Matrix first({{1,2},{3,4},{5,6}});
-    converter::Matrix second({{7,8,9},{10,11,12}});
-    converter::Matrix expected({{27,30,33},{61,68,75},{95,106,117}});
-    auto third = first*second;
+    converter::Matrix first({{1, 2}, {3, 4}, {5, 6}});
+    converter::Matrix second({{7, 8, 9}, {10, 11, 12}});
+    converter::Matrix expected({{27, 30, 33}, {61, 68, 75}, {95, 106, 117}});
+    auto third = first * second;
     // TO DO make == operator and specialization for floating types
-    //assert(std::equal(expected.mutable_data().begin(), expected.mutable_data().end(), third.mutable_data().begin()));
+    // assert(std::equal(expected.mutable_data().begin(), expected.mutable_data().end(), third.mutable_data().begin()));
 }
 
 void TestSummarize() {
@@ -75,20 +75,18 @@ void Tests() {
     TestSummarize();
     MultiplyTest();
 
-
-
     ImageReadTest();
     SubmatrixTest();
-   // ImageShakalTest();
+    ImageShakalTest();
 }
 
 int main() {
-    if (!std::filesystem::exists(inputImageForTest )) {
+    if (!std::filesystem::exists(inputImageForTest)) {
         std::cerr << "File does not exist!\n";
         return 1;
     }
-    
-    if (!std::filesystem::is_regular_file(inputImageForTest )) {
+
+    if (!std::filesystem::is_regular_file(inputImageForTest)) {
         std::cerr << "Path is not a regular file!\n";
         return 1;
     }
