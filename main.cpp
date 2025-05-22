@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 
+
 #include "ImageDecoder.hpp"
 
 std::filesystem::path inputImageForTest = "../tests/input.png";

@@ -3,6 +3,8 @@
 #include <string>
 
 #define cimg_display 0
+#define cimg_use_png
+#define cimg_use_zlib
 #include "third-party/CImg.h"
 
 namespace converter {
