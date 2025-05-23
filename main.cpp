@@ -28,9 +28,9 @@ void ImageReadTest() {
     tmp.SaveImage("../tests/output.png");
 }
 
-void ImageShakalTest() {
+void ImageShakalTest(std::size_t shakal_depth = 4) {
     converter::ImageConverter tmp(inputImageForTest);
-    tmp.ShakalImage(4);
+    tmp.ShakalImage(shakal_depth);
     tmp.SaveImage("../tests/shakal.png");
 }
 
@@ -80,7 +80,13 @@ void Tests() {
     ImageShakalTest();
 }
 
-int main() {
+int main(int argc, char** argv) {
+    if (argc > 2) {
+        inputImageForTest       = argv[1];
+        std::size_t shakalDepth = std::stoi(argv[2]);
+        ImageShakalTest(shakalDepth);
+        return 0;
+    }
     if (!std::filesystem::exists(inputImageForTest)) {
         std::cerr << "File does not exist!\n";
         return 1;

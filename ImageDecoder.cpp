@@ -21,8 +21,7 @@ ImageConverter::ImageConverter(std::filesystem::path const& path_to_image) {
 
     for (auto i = 0; i != channel_it; ++i) {
         for (auto j = 0; j != height; ++j) {
-            auto rows               = rgbImage[i].rows();
-            auto currentRowPosition = i * width * height;
+            auto rows = rgbImage[i].rows();
             Matrix<>::Row tmp;
             tmp.resize(width);
             std::copy(&reader(0, j, i), &reader(0, j, i) + width, tmp.begin());
