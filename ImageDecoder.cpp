@@ -13,10 +13,10 @@ ImageConverter::ImageConverter(std::filesystem::path const& path_to_image) {
         throw;
     }
     cimg_library::CImg<std::uint8_t> reader(path_to_image.string().c_str());
-    auto channels    = reader.spectrum();
+    channels         = reader.spectrum();
     auto width       = reader.width();
     auto height      = reader.height();
-    auto channel_it  = std::min(channels, 3);
+    auto channel_it  = std::min(channels, rgbImage.size());
     auto image_begin = reader.data();
 
     for (auto i = 0; i != channel_it; ++i) {
@@ -37,15 +37,14 @@ void ImageConverter::AddPadding(std::size_t size, PaddingType type) {
 
 void ImageConverter::SaveImage(std::string_view path_to_image) {
     std::vector<type> result;
-    for (auto i = 2; i >= 0; --i) {
-        for (auto j = 0; j != rgbImage[i].rows(); ++j) {
-            auto& row = rgbImage[i].getRow(j);
+    for (auto i = 0; i != channels; ++i) {
+        auto const& mutableData = rgbImage[i].mutable_data();
+        for (auto const& row : mutableData) {
             result.insert(result.end(), row.begin(), row.end());
         }
     }
-    auto channels = 3;
-    auto height   = rgbImage[0].rows();
-    auto width    = rgbImage[0].collums();
+    auto height = rgbImage[0].rows();
+    auto width  = rgbImage[0].collums();
 
     cimg_library::CImg<std::uint8_t> tmp(result.data(), width, height, 1, channels);
     tmp.save_png(std::string{path_to_image}.c_str());
@@ -62,6 +61,9 @@ void ImageConverter::averageFiltration(std::size_t kernelSize) {
         averageKernel.insert_row(averageKernel.rows(), singleLine);
     }
     for (auto j = 0; j != rgbImage.size(); ++j) {
+        if (rgbImage[j].collums() == 0 || rgbImage[j].rows() == 0) {
+            continue;
+        }
         auto result = averagePixelResizer(rgbImage[j], averageKernel);
         rgbImage[j] = result;
     }

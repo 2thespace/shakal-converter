@@ -90,9 +90,13 @@ Matrix<T> bilinearInterpolation(Matrix<T> const& input, std::size_t upscaleK = 2
             std::size_t x2 = std::min(x1 + 1, xSize - 1);
             double a       = x - x1;  // Fractional part
 
+#if 1
             // Bilinear interpolation
             resultRaw[y_new][x_new] = (1 - a) * (1 - b) * inputRaw[y1][x1] + a * (1 - b) * inputRaw[y1][x2] +
                                       (1 - a) * b * inputRaw[y2][x1] + a * b * inputRaw[y2][x2];
+#else
+            resultRaw[y1][x1] = inputRaw[y1][x1];
+#endif
         }
     }
     return result;
@@ -231,6 +235,7 @@ public:
 
 private:
     Channel<3> rgbImage;
+    std::size_t channels;
 };
 
 template <typename T>
