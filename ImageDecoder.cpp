@@ -37,7 +37,7 @@ void ImageConverter::AddPadding(std::size_t size, PaddingType type) {
 
 void ImageConverter::SaveImage(std::string_view path_to_image) {
     std::vector<type> result;
-    for (auto i = 0; i != 3; ++i) {
+    for (auto i = 2; i >= 0; --i) {
         for (auto j = 0; j != rgbImage[i].rows(); ++j) {
             auto& row = rgbImage[i].getRow(j);
             result.insert(result.end(), row.begin(), row.end());
@@ -67,10 +67,23 @@ void ImageConverter::averageFiltration(std::size_t kernelSize) {
     }
 }
 
-void ImageConverter::bilinearFiltration(std::size_t kernelSize) {}
+void ImageConverter::bilinearFiltration(std::size_t kernelSize) {
+    Channel<3> newRgbImage;
+    for (auto i = 0; i != newRgbImage.size(); ++i) {
+        newRgbImage[i].default_init(rgbImage[i].rows() * kernelSize, rgbImage[i].collums() * kernelSize);
+    }
+    for (auto j = 0; j != rgbImage.size(); ++j) {
+        auto result    = bilinearInterpolation(rgbImage[j], kernelSize);
+        newRgbImage[j] = result;
+    }
+    rgbImage = std::move(newRgbImage);
+}
 
 void ImageConverter::ShakalImage(std::size_t shakal_depth) {
-    ShakalImage(shakal_depth, [this](std::size_t shakal_depth) { averageFiltration(shakal_depth); });
+    auto downSizer = [this](std::size_t shakal_depth) { averageFiltration(shakal_depth); };
+    auto upscaler  = [this](std::size_t shakal_depth) { bilinearFiltration(shakal_depth); };
+
+    ShakalImage(shakal_depth, downSizer, upscaler);
 }
 
 }  // namespace converter

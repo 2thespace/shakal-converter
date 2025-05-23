@@ -35,6 +35,7 @@ public:
     double sumarize();
 
     auto& mutable_data() const;
+    auto& mutable_data();
 
     Matrix() = default;
     Matrix(Type const& new_data);
@@ -63,6 +64,38 @@ Matrix<T> averagePixelResizer(Matrix<T> const& inputMatrix, Matrix<T> const& ker
         resultData.insert_row(resultData.rows(), pixelLine);
     }
     return resultData;
+}
+
+template <typename T>
+Matrix<T> bilinearInterpolation(Matrix<T> const& input, std::size_t upscaleK = 2) {
+    Matrix<T> result;
+    result.default_init(upscaleK * input.rows(), upscaleK * input.collums());
+
+    const auto& inputRaw = input.mutable_data();  // Assuming this returns const reference
+    auto& resultRaw      = result.mutable_data();
+    auto resultY         = resultRaw.size();
+    auto ySize           = inputRaw.size();
+    for (std::size_t y_new = 0; y_new < resultY; ++y_new) {
+        double y       = double(y_new) / upscaleK;
+        std::size_t y1 = static_cast<std::size_t>(y);
+        y1             = std::min(y1, ySize - 1);
+        std::size_t y2 = std::min(y1 + 1, ySize - 1);
+        double b       = y - y1;  // Fractional part
+        auto resultX   = resultRaw[y_new].size();
+        auto xSize     = inputRaw[y1].size();
+        for (std::size_t x_new = 0; x_new < resultX; ++x_new) {
+            double x       = double(x_new) / upscaleK;
+            std::size_t x1 = static_cast<std::size_t>(x);
+            x1             = std::min(x1, xSize - 1);
+            std::size_t x2 = std::min(x1 + 1, xSize - 1);
+            double a       = x - x1;  // Fractional part
+
+            // Bilinear interpolation
+            resultRaw[y_new][x_new] = (1 - a) * (1 - b) * inputRaw[y1][x1] + a * (1 - b) * inputRaw[y1][x2] +
+                                      (1 - a) * b * inputRaw[y2][x1] + a * b * inputRaw[y2][x2];
+        }
+    }
+    return result;
 }
 
 template <typename T>
@@ -159,6 +192,10 @@ template <typename T>
 inline auto& Matrix<T>::mutable_data() const {
     return data;
 }
+template <typename T>
+inline auto& Matrix<T>::mutable_data() {
+    return data;
+}
 
 template <typename T>
 inline converter::Matrix<T>::Matrix(Type const& new_data) {
@@ -182,8 +219,8 @@ public:
     void AddPadding(std::size_t size, PaddingType type = PaddingType::SIMPLE);
     void SaveImage(std::string_view path_to_image);
 
-    template <typename ShakalFunction>
-    void ShakalImage(std::size_t shakal_depth, ShakalFunction converter);
+    template <typename ShakalDownSizer, typename ShakalUpscaler>
+    void ShakalImage(std::size_t shakal_depth, ShakalDownSizer converter, ShakalUpscaler upscaler);
 
     void ShakalImage(std::size_t shakal_depth);
     void resizeImage(std::size_t kDivided);
@@ -209,10 +246,11 @@ inline double Matrix<T>::sumarize() {
     return sum;
 }
 
-template <typename ShakalFunction>
-inline void ImageConverter::ShakalImage(std::size_t shakal_depth, ShakalFunction converter) {
+template <typename ShakalDownSizer, typename ShakalUpscaler>
+inline void ImageConverter::ShakalImage(std::size_t shakal_depth, ShakalDownSizer converter, ShakalUpscaler upscaler) {
     // AddPadding(padding);
     converter(shakal_depth);
+    upscaler(shakal_depth);
 }
 
 }  // namespace converter
