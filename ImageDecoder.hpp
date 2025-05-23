@@ -69,20 +69,20 @@ Matrix<T> averagePixelResizer(Matrix<T> const& inputMatrix, Matrix<T> const& ker
 template <typename T>
 Matrix<T> bilinearInterpolation(Matrix<T> const& input, std::size_t upscaleK = 2) {
     Matrix<T> result;
-    result.default_init(upscaleK * input.rows(), upscaleK * input.collums());
 
     const auto& inputRaw = input.mutable_data();  // Assuming this returns const reference
-    auto& resultRaw      = result.mutable_data();
-    auto resultY         = resultRaw.size();
-    auto ySize           = inputRaw.size();
+
+    auto ySize   = inputRaw.size();
+    auto resultY = upscaleK * ySize;
     for (std::size_t y_new = 0; y_new < resultY; ++y_new) {
         double y       = double(y_new) / upscaleK;
         std::size_t y1 = static_cast<std::size_t>(y);
         y1             = std::min(y1, ySize - 1);
         std::size_t y2 = std::min(y1 + 1, ySize - 1);
         double b       = y - y1;  // Fractional part
-        auto resultX   = resultRaw[y_new].size();
         auto xSize     = inputRaw[y1].size();
+        auto resultX   = upscaleK * xSize;
+        typename Matrix<T>::Row line;
         for (std::size_t x_new = 0; x_new < resultX; ++x_new) {
             double x       = double(x_new) / upscaleK;
             std::size_t x1 = static_cast<std::size_t>(x);
@@ -92,12 +92,15 @@ Matrix<T> bilinearInterpolation(Matrix<T> const& input, std::size_t upscaleK = 2
 
 #if 1
             // Bilinear interpolation
-            resultRaw[y_new][x_new] = (1 - a) * (1 - b) * inputRaw[y1][x1] + a * (1 - b) * inputRaw[y1][x2] +
-                                      (1 - a) * b * inputRaw[y2][x1] + a * b * inputRaw[y2][x2];
+            auto newValue = (1 - a) * (1 - b) * inputRaw[y1][x1] + a * (1 - b) * inputRaw[y1][x2] +
+                            (1 - a) * b * inputRaw[y2][x1] + a * b * inputRaw[y2][x2];
+
 #else
-            resultRaw[y1][x1] = inputRaw[y1][x1];
+            auto newValue = inputRaw[y1][x1];
 #endif
+            line.push_back(newValue);
         }
+        result.insert_row(result.rows(), line);
     }
     return result;
 }
@@ -227,6 +230,7 @@ public:
     void ShakalImage(std::size_t shakal_depth, ShakalDownSizer converter, ShakalUpscaler upscaler);
 
     void ShakalImage(std::size_t shakal_depth);
+
     void resizeImage(std::size_t kDivided);
     void upsckaleImage(std::size_t kUpscale);
 
