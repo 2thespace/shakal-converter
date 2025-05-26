@@ -67,6 +67,12 @@ Matrix<T> averagePixelResizer(Matrix<T> const& inputMatrix, Matrix<T> const& ker
 }
 
 template <typename T>
+Matrix<T> bicubicInterpolation(Matrix<T> const& input, std::size_t upscaleK = 2) {
+    Matrix<T> result;
+    return result;
+}
+
+template <typename T>
 Matrix<T> bilinearInterpolation(Matrix<T> const& input, std::size_t upscaleK = 2) {
     Matrix<T> result;
 
@@ -222,6 +228,8 @@ enum class PaddingType {
 class ImageConverter {
 public:
     ImageConverter(std::filesystem::path const& path_to_image);
+    ImageConverter(std::span<std::uint8_t> binearyImage, std::uint32_t width, std::uint32_t height,
+                   std::uint8_t collors);
 
     void AddPadding(std::size_t size, PaddingType type = PaddingType::SIMPLE);
     void SaveImage(std::string_view path_to_image);

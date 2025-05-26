@@ -1,5 +1,6 @@
 #include "ImageDecoder.hpp"
 
+#include <fstream>
 #include <string>
 
 #define cimg_display 0
@@ -28,6 +29,17 @@ ImageConverter::ImageConverter(std::filesystem::path const& path_to_image) {
             rgbImage[i].insert_row(rows, tmp);
         }
     }
+}
+
+ImageConverter::ImageConverter(std::span<std::uint8_t> binaryImage, std::uint32_t width, std::uint32_t height,
+                               std::uint8_t collors) {
+    std::string temp_filename = std::tmpnam(nullptr);
+    std::ofstream temp_file(temp_filename, std::ios::binary);
+    temp_file.write((char*)binaryImage.data(), binaryImage.size());
+    temp_file.close();
+
+    *this = ImageConverter(temp_filename.c_str());
+    std::remove(temp_filename.c_str());
 }
 
 void ImageConverter::AddPadding(std::size_t size, PaddingType type) {

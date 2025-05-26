@@ -70,6 +70,15 @@ void SubmatrixTest() {
     assert(res.rows() == 1);
 }
 
+void ImageFromVectorTest() {
+#include "anton.hpp"
+    converter::ImageConverter tmp(antonPng, 268, 140, 3);
+    tmp.SaveImage("../tests/output_vector.png");
+    tmp.ShakalImage(4);
+
+    tmp.SaveImage("../tests/shakal_vector.png");
+}
+
 void Tests() {
     MatrixTest();
     TestSummarize();
@@ -78,6 +87,7 @@ void Tests() {
     ImageReadTest();
     SubmatrixTest();
     ImageShakalTest();
+    ImageFromVectorTest();
 }
 
 int main(int argc, char** argv) {
