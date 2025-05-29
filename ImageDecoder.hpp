@@ -53,9 +53,9 @@ Matrix<T> averagePixelResizer(Matrix<T> const& inputMatrix, Matrix<T> const& ker
 
     auto inputRow = inputMatrix.rows();
     auto inputCol = inputMatrix.collums();
-    for (auto i = kX; i <= (inputRow - kX); i = i + kX) {
+    for (auto i = 0; i <= (inputRow - kX); i = i + kX) {
         typename converter::Matrix<T>::Row pixelLine;
-        for (auto j = kY; j <= (inputCol - kY); j = j + kY) {
+        for (auto j = 0; j <= (inputCol - kY); j = j + kY) {
             auto inputWindow = inputMatrix.subMatrix(i, j, i + kX, j + kY);
             inputWindow *= kernelMatrix;
             T pixel = static_cast<T>(inputWindow.template sumarize<true>());
