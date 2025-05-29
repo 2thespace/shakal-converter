@@ -14,6 +14,7 @@ set(PNG_TESTS OFF CACHE BOOL "Disable libpng tests" FORCE)
 set(PNG_SHARED OFF CACHE BOOL "Build static libpng" FORCE)
 set(PNG_STATIC ON CACHE BOOL "Build static libpng" FORCE)
 set(PNG_TOOLS OFF)
+
 # set(PNG_EXECUTABLES OFF CACHE BOOL "Disable building executables" FORCE)
 
 
@@ -25,6 +26,6 @@ find_package(ZLIB REQUIRED)
 add_subdirectory(libpng)
 
 add_library(third-party INTERFACE)
-target_link_libraries(third-party INTERFACE ZLIB::ZLIBSTATIC png_static)
+target_link_libraries(third-party INTERFACE ZLIB::ZLIBSTATIC png_static jpeg)
 target_include_directories(third-party INTERFACE "${CMAKE_CURRENT_LIST_DIR}/libpng")
 add_library(shakal::third-party ALIAS third-party)
