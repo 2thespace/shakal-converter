@@ -73,6 +73,27 @@ Matrix<T> bicubicInterpolation(Matrix<T> const& input, std::size_t upscaleK = 2)
 }
 
 template <typename T>
+Matrix<T> pixelInterpolation(Matrix<T> const& input, std::size_t upscaleK = 2) {
+    Matrix<T> result;
+    const auto& inputRaw = input.mutable_data();  // Assuming this returns const reference
+    auto ySize           = inputRaw.size();
+    auto resultY         = upscaleK * ySize;
+    for (std::size_t y_new = 0; y_new < resultY; ++y_new) {
+        auto y       = y_new / upscaleK;
+        auto xSize   = inputRaw[y].size();
+        auto resultX = upscaleK * xSize;
+        typename Matrix<T>::Row line;
+        for (std::size_t x_new = 0; x_new < resultX; ++x_new) {
+            auto x        = x_new / upscaleK;
+            auto newValue = inputRaw[y][x];
+            line.push_back(newValue);
+        }
+        result.insert_row(result.rows(), line);
+    }
+    return result;
+}
+
+template <typename T>
 Matrix<T> bilinearInterpolation(Matrix<T> const& input, std::size_t upscaleK = 2) {
     Matrix<T> result;
 
@@ -123,12 +144,12 @@ inline std::size_t converter::Matrix<T>::rows() const {
 
 template <typename T>
 inline void Matrix<T>::default_init(std::size_t rowsCnt, std::size_t collumnsCnt) {
-    data.resize(collumnsCnt);
+    data.resize(rowsCnt);
     for (auto it = data.begin(); it != data.end(); ++it) {
-        it->resize(rowsCnt);
+        it->resize(collumnsCnt);
     }
-    n = collumnsCnt;
-    m = rowsCnt;
+    n = rowsCnt;
+    m = collumnsCnt;
 }
 
 template <typename T>
@@ -244,6 +265,7 @@ public:
 
     void averageFiltration(std::size_t kernelSize = 3);
     void bilinearFiltration(std::size_t kernelSize = 3);
+    void pixelFiltration(std::size_t kernelSize = 3);
 
 private:
     Channel<3> rgbImage;

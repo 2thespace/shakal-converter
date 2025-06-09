@@ -93,9 +93,21 @@ void ImageConverter::bilinearFiltration(std::size_t kernelSize) {
     rgbImage = std::move(newRgbImage);
 }
 
+void ImageConverter::pixelFiltration(std::size_t kernelSize) {
+    Channel<3> newRgbImage;
+    for (auto i = 0; i != newRgbImage.size(); ++i) {
+        newRgbImage[i].default_init(rgbImage[i].rows() * kernelSize, rgbImage[i].collums() * kernelSize);
+    }
+    for (auto j = 0; j != rgbImage.size(); ++j) {
+        auto result    = pixelInterpolation(rgbImage[j], kernelSize);
+        newRgbImage[j] = result;
+    }
+    rgbImage = std::move(newRgbImage);
+}
+
 void ImageConverter::ShakalImage(std::size_t shakal_depth) {
     auto downSizer = [this](std::size_t shakal_depth) { averageFiltration(shakal_depth); };
-    auto upscaler  = [this](std::size_t shakal_depth) { bilinearFiltration(shakal_depth); };
+    auto upscaler  = [this](std::size_t shakal_depth) { pixelFiltration(shakal_depth); };
 
     ShakalImage(shakal_depth, downSizer, upscaler);
 }

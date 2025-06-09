@@ -13,7 +13,7 @@ add_subdirectory(third-party)
 
 add_library(${PROJECT_NAME} STATIC ImageDecoder.hpp ImageDecoder.cpp )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC shakal::third-party)
+target_link_libraries(${PROJECT_NAME} PRIVATE shakal::third-party)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/third-party)
 add_library(shakal::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
